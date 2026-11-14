@@ -1,0 +1,315 @@
+/* =====================================================================
+   PRODUCT BENTO GRID — Signature 7 Cookie Flavors
+   ===================================================================== */
+
+.product-bento-section {
+  position: relative;
+  background: #F8F1E5;
+  color: #2A160A;
+  padding: clamp(3.5rem, 6vh, 6rem) 0;
+  border-top: 1px solid rgba(42, 22, 10, 0.08);
+}
+
+.product-bento-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding-inline: max(1.5rem, env(safe-area-inset-left, 0px));
+}
+
+/* ── Section Header ─────────────────────────────────────────────────── */
+.product-bento-header {
+  margin-bottom: clamp(2rem, 4vh, 3.2rem);
+}
+
+.product-bento-header__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.product-bento-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #0B1C7D;
+  color: #FFFFFF;
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(11, 28, 125, 0.18);
+}
+
+.product-bento-count {
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #7A4215;
+}
+
+.product-bento-title {
+  margin: 0 0 0.85rem 0;
+  font-family: 'Anton', 'Impact', sans-serif !important;
+  font-size: clamp(2.4rem, 5vw, 4.2rem);
+  line-height: 0.98;
+  letter-spacing: 0.02em;
+  color: #2A160A;
+  text-transform: uppercase;
+}
+
+.product-bento-lead {
+  max-width: 680px;
+  margin: 0 0 1.5rem 0;
+  font-family: var(--f-body, sans-serif);
+  font-size: clamp(1rem, 1.25vw, 1.15rem);
+  line-height: 1.55;
+  color: #4A2714;
+}
+
+/* ── Category Filter Pills ─────────────────────────────────────────── */
+.product-bento-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.product-bento-filter {
+  background: #FFFDF8;
+  border: 1.5px solid rgba(42, 22, 10, 0.16);
+  border-radius: 999px;
+  padding: 0.45rem 1.15rem;
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #4A2714;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 2px 6px rgba(42, 22, 10, 0.04);
+}
+
+.product-bento-filter:hover {
+  background: #FAF0DF;
+  border-color: #F48A17;
+  color: #7B3E05;
+  transform: translateY(-1px);
+}
+
+.product-bento-filter.is-active {
+  background: #0B1C7D;
+  border-color: #0B1C7D;
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(11, 28, 125, 0.25);
+  transform: translateY(-1px);
+}
+
+/* ── Bento Grid ─────────────────────────────────────────────────────── */
+.product-bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1.2rem, 2vw, 1.8rem);
+}
+
+@media (max-width: 1040px) {
+  .product-bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .product-bento-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Bento Card ─────────────────────────────────────────────────────── */
+.product-bento-card {
+  border-radius: 24px;
+  border: 1.5px solid;
+  padding: clamp(1.4rem, 2vw, 1.8rem);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(42, 22, 10, 0.05);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.product-bento-card:hover {
+  box-shadow: 0 16px 36px rgba(42, 22, 10, 0.1);
+}
+
+.product-bento-card:focus-visible {
+  outline: 3px solid #0B1C7D;
+  outline-offset: 3px;
+}
+
+/* Hero Cards (Span 2 columns on wide screens) */
+@media (min-width: 1100px) {
+  .product-bento-card--hero:first-of-type {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    grid-template-areas:
+      "top top"
+      "visual content";
+    gap: 1.2rem;
+  }
+
+  .product-bento-card--hero:first-of-type .product-bento-card__top {
+    grid-area: top;
+  }
+
+  .product-bento-card--hero:first-of-type .product-bento-card__visual {
+    grid-area: visual;
+    margin-bottom: 0;
+  }
+
+  .product-bento-card--hero:first-of-type .product-bento-card__content {
+    grid-area: content;
+  }
+}
+
+/* Card Top Badges */
+.product-bento-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.product-bento-card__number {
+  font-family: 'Fredoka', 'Bricolage Grotesque', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: rgba(42, 22, 10, 0.4);
+}
+
+.product-bento-card__pill {
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 0.22rem 0.65rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.product-bento-card__pill--orange {
+  background: rgba(244, 138, 23, 0.16);
+  color: #B35B00;
+}
+
+.product-bento-card__pill--blue {
+  background: rgba(11, 28, 125, 0.12);
+  color: #0B1C7D;
+}
+
+.product-bento-card__pill--green {
+  background: rgba(45, 102, 37, 0.14);
+  color: #2D6625;
+}
+
+.product-bento-card__pill--choc {
+  background: rgba(67, 32, 16, 0.14);
+  color: #4A2411;
+}
+
+.product-bento-card__pill--caramel {
+  background: rgba(178, 87, 34, 0.15);
+  color: #8F4613;
+}
+
+/* Cookie Visual */
+.product-bento-card__visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.1rem;
+  padding: 0.5rem 0;
+}
+
+.product-bento-card__cookie-svg {
+  width: clamp(90px, 9vw, 120px);
+  height: clamp(90px, 9vw, 120px);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: center center;
+}
+
+.product-bento-card:hover .product-bento-card__cookie-svg {
+  transform: scale(1.08) rotate(10deg);
+}
+
+/* Card Content */
+.product-bento-card__content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.product-bento-card__title {
+  margin: 0 0 0.55rem 0;
+  font-family: 'Fredoka', 'Arial Rounded MT Bold', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.25rem, 1.55vw, 1.45rem);
+  color: #2A160A;
+  line-height: 1.22;
+}
+
+.product-bento-card__desc {
+  margin: 0 0 1rem 0;
+  font-family: var(--f-body, sans-serif);
+  font-size: clamp(0.86rem, 0.98vw, 0.94rem);
+  color: #4E2C17;
+  line-height: 1.55;
+  flex-grow: 1;
+}
+
+/* Taste Profile Tags */
+.product-bento-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.9rem;
+}
+
+.product-bento-tag {
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: rgba(42, 22, 10, 0.06);
+  color: #4A2714;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* Pairing Recommendation */
+.product-bento-card__pairing {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.76rem;
+  padding-top: 0.65rem;
+  border-top: 1px dashed rgba(42, 22, 10, 0.14);
+}
+
+.product-bento-card__pairing-label {
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  color: #8A4612;
+}
+
+.product-bento-card__pairing-text {
+  font-weight: 600;
+  color: #3C1E0D;
+}
+

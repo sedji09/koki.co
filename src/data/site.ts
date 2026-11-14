@@ -16,10 +16,19 @@ export interface Img {
   alt: string;
   width: number;
   height: number;
+  author?: string;
 }
 
-const img = (dir: string, name: string, ext: 'png' | 'jpg', alt: string, width: number, height: number): Img => ({
-  src: asset(`${dir}/${name}.webp`),
+const img = (
+  dir: string,
+  name: string,
+  ext: 'png' | 'jpg',
+  alt: string,
+  width: number,
+  height: number,
+  format: 'webp' | 'png' | 'jpg' = 'webp'
+): Img => ({
+  src: asset(`${dir}/${name}.${format}`),
   original: asset(`${dir}/${name}.${ext}`),
   alt,
   width,
@@ -39,10 +48,39 @@ export const brand = {
 };
 
 export const logos = {
-  primary: img('brand', 'primary_logo', 'png', 'kOKi.co primary logo: the word kOKi with a bitten chocolate-chip cookie as the O and a playful character reaching for crumbs, followed by .co', 627, 502),
-  secondary: img('brand', 'secondary_logo', 'png', 'kOKi.co secondary logo: a compact chocolate-brown “ko” monogram with a bitten k and a pointing character cut out of the o, followed by .co', 592, 548),
+  primary: {
+    src: asset('logo-dev/primary-logo.png'),
+    original: asset('logo-dev/primary-logo.png'),
+    alt: 'kOKi.co primary logo: the word kOKi with a bitten chocolate-chip cookie as the O and a playful character reaching for crumbs, followed by .co',
+    width: 600,
+    height: 600,
+  },
+  secondary: {
+    src: asset('logo-dev/secondary-logo.png'),
+    original: asset('logo-dev/secondary-logo.png'),
+    alt: 'kOKi.co secondary logo: a compact chocolate-brown “ko” monogram with a bitten k and a pointing character cut out of the o, followed by .co',
+    width: 1080,
+    height: 1080,
+  },
+  sketch: asset('logo-dev/logo_sketch.png'),
   primaryTrim: asset('brand/primary_logo_trim.webp'),
   secondaryTrim: asset('brand/secondary_logo_trim.webp'),
+};
+
+export const logoLayers = {
+  primary: {
+    k: asset('logo-dev/layers/layer_k.png'),
+    cookie: asset('logo-dev/layers/layer_cookie.png'),
+    baker: asset('logo-dev/layers/layer_baker.png'),
+    i: asset('logo-dev/layers/layer_i.png'),
+    co: asset('logo-dev/layers/layer_co.png'),
+  },
+  secondary: {
+    logo: asset('logo-dev/secondary-logo.png'),
+    monogram: asset('logo-dev/layers/secondary_monogram.png'),
+    crumbs: asset('logo-dev/layers/secondary_crumbs.png'),
+    submark: asset('logo-dev/layers/secondary_submark.png'),
+  },
 };
 
 export const heroCookie = {
@@ -51,6 +89,8 @@ export const heroCookie = {
   width: 700,
   height: 360,
 };
+
+export const bittenCookie = asset('brand/bitten_cookie.png');
 
 /* ------------------------------------------------------------------ */
 /* Palette                                                            */
@@ -70,29 +110,29 @@ export const palette: Swatch[] = [
   { hex: '#F7D5B4', name: 'Light Cream', role: 'Backgrounds and cards' },
 ];
 
-/** Colors used in the logo artwork (see Concept 04 final refinement). */
+/** Colors used in the logo artwork. */
 export const logoPalette: Swatch[] = [
-  { hex: '#481C10', name: 'Dark Chocolate' },
-  { hex: '#F6A762', name: 'Cookie Orange' },
-  { hex: '#F7D5B4', name: 'Light Cream' },
+  { hex: '#361d07', name: 'Deep Chocolate' },
+  { hex: '#e39744', name: 'Golden Cookie' },
+  { hex: '#4b2608', name: 'Cocoa Brown' },
 ];
 
 /** Sampled from the first brand post artwork (approximate, eyedropper-sampled). */
 export const firstPostPalette: Swatch[] = [
-  { hex: '#3B1E08', name: 'Espresso' },
+  { hex: '#381C07', name: 'Espresso' },
   { hex: '#7B502C', name: 'Milk Chocolate' },
   { hex: '#B58856', name: 'Toasted Tan' },
   { hex: '#E3C49A', name: 'Biscuit' },
-  { hex: '#F3DAB1', name: 'Paper Cream' },
+  { hex: '#FADEAE', name: 'Paper Cream' },
 ];
 
 /** The promo poster’s own color scheme (exact HEX printed on the artwork). */
 export const posterPalette: Swatch[] = [
-  { hex: '#EDAF7A', name: 'Peach' },
-  { hex: '#F6A762', name: 'Cookie Orange' },
-  { hex: '#481C10', name: 'Dark Chocolate' },
-  { hex: '#CE8F59', name: 'Caramel' },
-  { hex: '#F7D5B4', name: 'Light Cream' },
+  { hex: '#2A160A', name: 'Dark Chocolate' },
+  { hex: '#492F15', name: 'Cocoa Brown' },
+  { hex: '#F48A17', name: 'Cookie Orange' },
+  { hex: '#FFE400', name: 'Promo Yellow' },
+  { hex: '#000793', name: 'Royal Blue' },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -119,7 +159,7 @@ export const logoAnatomy = [
 
 /** Labels for analysis only — visually matched approximations, NOT confirmed source fonts. */
 export const logoTypography = ['Custom rounded lettering'];
-export const firstPostTypography = ['Lilita One', 'Anton', 'Fredoka Bold'];
+export const firstPostTypography = ['Pop Core', 'Super Boys', 'Chewy'];
 export const posterTypography = ['Cooper Black', 'Anton', 'Poppins'];
 
 /* ------------------------------------------------------------------ */
@@ -130,13 +170,13 @@ export const story = {
     'kOKi.co started in 2026 as a small rolling store selling only one cookie flavor. As more customers enjoyed the cookies, new flavors were added and the recipes improved — growing into a mobile cookie business across Nueva Ecija.',
   ],
   nameOrigin:
-    'The name kOKi.co came from the idea of a place where people can always find a cookie they’ll enjoy, no matter where they are.',
+    "The name kOKi.co came from 'Cookie Corner' — with '.co' standing for 'Corner', creating a welcoming neighborhood place where people can always find fresh, affordable cookies they’ll enjoy, no matter where they are.",
   uniqueAppeal:
     'Through our rolling stores and mobile vendors, customers can enjoy fresh cookies in different places around Nueva Ecija. With different flavors to choose from and prices that are easy on the budget, kOKi.co makes satisfying your cookie cravings simple, convenient and enjoyable.',
   vision:
     'To become a well-known local cookie brand in Nueva Ecija, known for fresh, delicious and affordable cookies that customers can easily enjoy wherever they are.',
   mission:
-    'To provide freshly baked, good-quality cookies at an affordable price — and make them more accessible by bringing our rolling stores and mobile vendors closer to schools, communities, events and busy areas.',
+    'To provide freshly baked, good-quality cookies at an affordable price, and to bring our rolling stores and mobile vendors closer to schools, communities, events and busy areas.',
   timeline: [
     { label: '2026', text: 'One store, one flavor' },
     { label: 'Then', text: 'More flavors' },
@@ -170,11 +210,11 @@ export const flavors = products.map((p) => p.name);
 
 export type ServiceIcon = 'cart' | 'box' | 'stack' | 'calendar' | 'booth';
 export const services: { title: string; text: string; icon: ServiceIcon; image: string; alt: string }[] = [
-  { title: 'Mobile Cookie Selling', text: 'Fresh cookies, brought around Nueva Ecija.', icon: 'cart', image: asset('services/mobile_cookie_selling.webp'), alt: 'Illustration of a cream and brown cookie truck with an awning, trays of cookies and a giant cookie on the roof' },
-  { title: 'Cookie Box Orders', text: 'Assorted boxes for sharing and gifting.', icon: 'box', image: asset('services/cookie_box_orders.webp'), alt: 'Illustration of an open kOKi.co gift box with four assorted cookies and a ribbon' },
-  { title: 'Bulk Orders', text: 'Big orders for parties and school events.', icon: 'stack', image: asset('services/bulk_orders.webp'), alt: 'Illustration of a tall stack of cookies tied with twine and a Bulk Order tag' },
-  { title: 'Pre-Orders', text: 'Order ahead, pick your time.', icon: 'calendar', image: asset('services/pre_orders.webp'), alt: 'Illustration of a Pre-Order desk calendar with checked dates and a bitten cookie' },
-  { title: 'Event Selling', text: 'Our booth or mobile store at your event.', icon: 'booth', image: asset('services/event_selling.webp'), alt: 'Illustration of a kOKi.co market booth with a striped awning, string lights and cookie jars' },
+  { title: 'Mobile Cookie Selling', text: 'kOKi.co goes around different locations in Nueva Ecija, bringing fresh cookies closer to customers.', icon: 'cart', image: asset('services/mobile_cookie_selling.png'), alt: 'Illustration of a cream and brown cookie truck with an awning, trays of cookies and a giant cookie on the roof' },
+  { title: 'Cookie Box Orders', text: 'Assorted cookies packed in a box, perfect for sharing, gifting, or simple celebrations.', icon: 'box', image: asset('services/cookie_box_orders.png'), alt: 'Illustration of an open kOKi.co gift box with four assorted cookies and a ribbon' },
+  { title: 'Bulk Orders', text: 'Large cookie orders are available for parties, school events, and other gatherings.', icon: 'stack', image: asset('services/bulk_orders.png'), alt: 'Illustration of a tall stack of cookies tied with twine and a Bulk Order tag' },
+  { title: 'Pre-Orders', text: 'Customers can order ahead and choose a scheduled pick-up or selling time.', icon: 'calendar', image: asset('services/pre_orders.png'), alt: 'Illustration of a Pre-Order desk calendar with checked dates and a bitten cookie' },
+  { title: 'Event Selling', text: 'kOKi.co can set up its booth or mobile store at different events and gatherings.', icon: 'booth', image: asset('services/event_selling.png'), alt: 'Illustration of a kOKi.co market booth with a striped awning, string lights and cookie jars' },
 ];
 
 export const audience = [
@@ -185,21 +225,82 @@ export const audience = [
 ];
 
 /* ------------------------------------------------------------------ */
-/* Owners — set `photo` to an image path (e.g. asset('owners/harold.jpg'))
-   after adding the file to public/assets/owners/. Leave null to show
-   the placeholder.                                                    */
+/* Founders — set `photo` to an image path (e.g. asset('founders/harold.png'))
+   after adding the file to public/assets/founders/. Leave null to show
+   the playful doodle placeholder.                                     */
 /* ------------------------------------------------------------------ */
-export interface Owner {
+export interface Founder {
   name: string;
+  nickname: string;
   initials: string;
+  role?: string;
+  course?: string;
+  birthday?: string;
+  instagram?: string;
+  socialUrl?: string;
+  color: string;
+  accentBg: string;
   photo: string | null;
 }
-export const owners: Owner[] = [
-  { name: 'Harold James F. Delgado', initials: 'HD', photo: null },
-  { name: 'Chynna Mae S. Lacsa', initials: 'CL', photo: null },
-  { name: 'Chrizthell Joy A. Nicolas', initials: 'CN', photo: null },
-  { name: 'Seigi R. Pascual', initials: 'SP', photo: null },
+
+export const founders: Founder[] = [
+  {
+    name: 'Harold James F. Delgado',
+    nickname: 'HAROLD',
+    initials: 'HD',
+    role: 'Co-Founder',
+    course: 'BSIT 4G',
+    birthday: '—',
+    instagram: 'harold.james.26',
+    socialUrl: 'https://www.facebook.com/harold.james.26',
+    color: '#E76F51',
+    accentBg: '#FFF0ED',
+    photo: asset('founders/harold.png'),
+  },
+  {
+    name: 'Chynna Mae S. Lacsa',
+    nickname: 'CHYNNA',
+    initials: 'CL',
+    role: 'Co-Founder',
+    course: 'BSIT 4G',
+    birthday: '—',
+    instagram: 'chynestrae',
+    socialUrl: 'https://www.facebook.com/chynestrae',
+    color: '#7209B7',
+    accentBg: '#F5EEFF',
+    photo: asset('founders/chynna_mae.png'),
+  },
+  {
+    name: 'Chrizthell Joy A. Nicolas',
+    nickname: 'CHRIZ',
+    initials: 'CN',
+    role: 'Co-Founder',
+    course: 'BSIT 4G',
+    birthday: '—',
+    instagram: 'chrizthell07',
+    socialUrl: 'https://www.facebook.com/chrizthell07',
+    color: '#F4A261',
+    accentBg: '#FFF6ED',
+    photo: asset('founders/chrizthell_joy.png'),
+  },
+  {
+    name: 'Seigi R. Pascual',
+    nickname: 'SEIGI',
+    initials: 'SP',
+    role: 'Co-Founder',
+    course: 'BSIT 4G',
+    birthday: '—',
+    instagram: 'seigi12',
+    socialUrl: 'https://www.facebook.com/seigi12',
+    color: '#16A34A',
+    accentBg: '#ECFDF5',
+    photo: asset('founders/seigi.png'),
+  },
 ];
+
+/** Alias for backward compatibility */
+export type Owner = Founder;
+export const owners = founders;
 
 /* ------------------------------------------------------------------ */
 /* CT#1 — Logo development                                            */
@@ -262,20 +363,28 @@ export const firstPost = {
 };
 
 export const supportingPosts: Img[] = [
-  img('first-post', 'supporting_01', 'png', 'kOKi.co brand post: logo above “It’s ok not to be KOKi” with a stack of chocolate chunk cookies and “Freshly baked cookies”', 1080, 1080),
-  img('first-post', 'supporting_02', 'png', 'kOKi.co brand post: stacked cookies with “It’s okay not to be kOKi” stickers and a lineup of flavor photo cards', 782, 785),
-  img('first-post', 'supporting_03', 'png', 'kOKi.co brand post: “It’s okay not to be kOKi” in serif type over a red arch and a large chocolate chip cookie', 1080, 1080),
-  img('first-post', 'supporting_04', 'png', 'kOKi.co brand post: picnic scene on grass with cookie baskets and “It’s Okay not to be kOKi” in yellow lettering', 813, 810),
-  img('first-post', 'supporting_05', 'png', 'kOKi.co brand post: minimal layout where a cookie forms the O in “It’s ok, not to be kOKi!”', 646, 645),
-  img('first-post', 'supporting_06', 'png', 'kOKi.co brand post: “It’s OK not to be kOKi” with a cookie as the O on an orange background with stacked cookies', 482, 637),
+  { ...img('first-post', 'supporting_01', 'png', 'kOKi.co brand post: logo above “It’s ok not to be KOKi” with a stack of chocolate chunk cookies and “Freshly baked cookies”', 1080, 1080, 'png'), author: 'Harold James Delgado' },
+  { ...img('first-post', 'supporting_02', 'png', 'kOKi.co brand post: stacked cookies with “It’s okay not to be kOKi” stickers and a lineup of flavor photo cards', 782, 785, 'png'), author: 'Chynna Mae Lacsa' },
+  { ...img('first-post', 'supporting_03', 'png', 'kOKi.co brand post: “It’s okay not to be kOKi” in serif type over a red arch and a large chocolate chip cookie', 1080, 1080, 'png'), author: 'Seigi Pascual' },
+  { ...img('first-post', 'supporting_04', 'png', 'kOKi.co brand post: picnic scene on grass with cookie baskets and “It’s Okay not to be kOKi” in yellow lettering', 813, 810, 'png'), author: 'Seigi Pascual' },
+  { ...img('first-post', 'supporting_05', 'png', 'kOKi.co brand post: minimal layout where a cookie forms the O in “It’s ok, not to be kOKi!”', 646, 645, 'png'), author: 'Seigi Pascual' },
+  { ...img('first-post', 'supporting_06', 'png', 'kOKi.co brand post: “It’s OK not to be kOKi” with a cookie as the O on an orange background with stacked cookies', 565, 698, 'png'), author: 'Chrizthell Nicolas' },
 ];
 
 /* ------------------------------------------------------------------ */
 /* CT#3 — Promotional event poster (archived campaign)                */
 /* ------------------------------------------------------------------ */
 export const promoPoster = {
-  image: img('promo', 'promotional_poster_and_palette', 'jpg', 'kOKi.co promotional event poster: two chocolate chip cookies on orange with “It’s okay not to be kOKi!”, an “Only for ₱99!” badge, October 12, 2026 at NEUST Sumacab, shown beside its color scheme panel with HEX values #EDAF7A, #F6A762, #481C10, #CE8F59 and #F7D5B4', 1600, 1200),
-  event: { date: 'October 12, 2026', venue: 'NEUST Sumacab', offer: '₱99' },
+  cleanImage: img('promo', 'promotional_poster_clean', 'jpg', 'kOKi.co promotional event poster: freshly baked cookies pouch with promo price ₱99, October 10, 2026 at Freedom Park, Cabanatuan City', 1080, 1350, 'jpg'),
+  image: img('promo', 'promotional_poster_clean', 'jpg', 'kOKi.co promotional event poster: freshly baked cookies pouch with promo price ₱99, October 10, 2026 at Freedom Park, Cabanatuan City', 1080, 1350, 'jpg'),
+  event: {
+    date: 'October 10, 2026',
+    time: '9:00 AM – 8:00 PM',
+    venue: 'Freedom Park, Padre Burgos, Cabanatuan City, N.E',
+    offer: 'Php 99',
+    originalPrice: 'Php 150',
+    discount: 'Save ₱51',
+  },
 };
 
 /* ------------------------------------------------------------------ */

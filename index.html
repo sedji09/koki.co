@@ -14,6 +14,19 @@
     <meta property="og:image" content="./assets/brand/primary_logo.png" />
     <link rel="icon" type="image/webp" href="./assets/brand/secondary_logo_trim.webp" />
     <link rel="preload" as="image" href="./assets/brand/hero_cookie_crop.webp" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Chewy&family=Lilita+One&family=Titan+One&display=swap" rel="stylesheet" />
+    <script>
+      // Force page to always start at the very top (Opening screen) on reload
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+      window.scrollTo(0, 0);
+      window.addEventListener('beforeunload', function () {
+        window.scrollTo(0, 0);
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>

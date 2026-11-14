@@ -199,12 +199,6 @@
   padding: 0.7rem 1rem;
 }
 
-/* first post: two tiles on the right */
-@media (min-width: 1100px) {
-  .bento--post .feedcard { grid-row: 1 / span 2; }
-  .bento--post .post-palette,
-  .bento--post .post-type { grid-column: 7 / span 6; }
-}
 .type-list__name {
   white-space: nowrap;
 }
@@ -306,19 +300,8 @@
   }
 }
 
-/* palette + typography tiles size to their content (no stretched empty boxes) */
-.bento--post .post-palette,
-.bento--post .post-type {
-  align-self: start;
-}
 .type-list li {
   padding: 0.55rem 0;
-}
-@media (min-width: 1100px) {
-  /* keep the right column stacked tightly at the top beside the tall post */
-  .bento--post {
-    grid-template-rows: auto 1fr;
-  }
 }
 
 /* compact palettes on phones: stacked, slim, never overflowing their tile */

@@ -1,0 +1,609 @@
+/* =====================================================================
+   CONCEPT SLIDE — Exact Layout for PT #1 Business Concept Development
+   ===================================================================== */
+
+.concept-slide-section {
+  position: relative;
+  background: #F8F1E5;
+  color: #2A160A;
+  overflow: visible; /* Allows watermark to overlap the zoomed cookie above */
+}
+
+/* ── Scroll Track for Pinning: PT #1 Slide stays locked while scrolling through cards ── */
+.concept-slide-track {
+  position: relative;
+  width: 100%;
+  height: 300vh;
+}
+
+.concept-slide {
+  position: relative;
+  width: 100%;
+  overflow: visible;
+}
+
+/* Stays pinned at top: 0 for the entire 300vh scroll track */
+.concept-slide.concept-slide--sticky {
+  position: sticky !important;
+  top: 0 !important;
+  height: 100vh;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: visible;
+  z-index: 10;
+}
+
+/* ── Inner Content Container (Layered on top of watermark) ──────────── */
+.concept-slide__inner {
+  position: relative;
+  z-index: 3;
+  max-width: 1360px;
+  width: 100%;
+  margin: 0 auto;
+  padding-inline: max(1.5rem, env(safe-area-inset-left, 0px));
+  padding-top: clamp(1rem, 2.2vh, 1.8rem);
+  padding-bottom: clamp(1rem, 2.2vh, 1.8rem);
+}
+
+/* ── PT #1 Blue Pill Badge (Own block row above the title) ──────────── */
+.concept-slide__badge-wrap {
+  display: block;
+  margin-bottom: 0.65rem;
+}
+
+.concept-slide__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #0B1C7D;
+  color: #FFFFFF;
+  font-family: var(--f-body, sans-serif);
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.35rem 1.15rem;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(11, 28, 125, 0.2);
+}
+
+/* ── Main Slide Heading: Full-Width Row Below Badge ─────────────────── */
+.concept-slide__title {
+  position: relative;
+  z-index: 4; /* Clearly above watermark */
+  display: flex !important;
+  flex-wrap: wrap;
+  width: 100%;
+  margin: 0 0 clamp(1rem, 2vh, 1.8rem) 0;
+  font-family: 'Anton', 'Impact', sans-serif !important;
+  font-weight: 400;
+  font-size: clamp(2.3rem, 5vw, 4.5rem);
+  line-height: 0.98;
+  letter-spacing: 0.015em;
+  color: #2A160A;
+  text-transform: uppercase;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  cursor: grab;
+}
+
+.concept-slide__title.elastic-grabbing {
+  cursor: grabbing !important;
+}
+
+/* ── Two-Column Presentation Grid (Picture 2 Match) ─────────────────── */
+.concept-slide__grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1.05fr;
+  gap: clamp(2rem, 4.5vw, 4.5rem);
+  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .concept-slide__grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+/* ── Left Column: Interactive Brand Bento Hub ───────────────────────── */
+.concept-slide__col-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-bento-hub {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+}
+
+/* Base Bento Card */
+.brand-bento-card {
+  background: #FFFDF8;
+  border-radius: 22px;
+  border: 1.5px solid rgba(244, 138, 23, 0.28);
+  box-shadow: 0 10px 24px rgba(42, 22, 10, 0.05);
+  padding: clamp(1.15rem, 1.8vw, 1.45rem);
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hero Identity Card */
+.brand-bento-card--hero {
+  background: linear-gradient(145deg, #FFFDF9 0%, #FDF5E8 100%);
+  border-color: rgba(244, 138, 23, 0.38);
+}
+
+.brand-bento-card__badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.brand-bento-label {
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0B1C7D;
+}
+
+.brand-bento-sublabel {
+  display: block;
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #0B1C7D;
+  margin-bottom: 0.35rem;
+}
+
+.brand-bento-pill {
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.brand-bento-pill--est {
+  background: rgba(11, 28, 125, 0.08);
+  color: #0B1C7D;
+}
+
+.brand-bento-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22C55E;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
+  animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.brand-bento-hero__brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.brand-bento-hero__title {
+  margin: 0;
+  font-family: 'Fredoka', 'Arial Rounded MT Bold', sans-serif;
+  font-weight: 700;
+  font-size: clamp(2.4rem, 3.4vw, 3.1rem);
+  line-height: 1.05;
+  color: #2A160A;
+  letter-spacing: -0.015em;
+}
+
+.brand-bento-hero__cookie-wrap {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.brand-bento-hero__cookie-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(42, 22, 10, 0.12));
+}
+
+/* Tagline Speech Capsule */
+.brand-bento-tagline-wrap {
+  margin-top: 0.25rem;
+}
+
+.brand-bento-tagline-bubble {
+  width: 100%;
+  border: 1.5px solid rgba(244, 138, 23, 0.45);
+  background: #FAF0DE;
+  border-radius: 16px;
+  padding: 0.75rem 1.05rem;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  box-shadow: 0 4px 12px rgba(42, 22, 10, 0.04);
+  position: relative;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.brand-bento-tagline-bubble:hover {
+  background: #F7EAD0;
+  border-color: #F48A17;
+}
+
+.brand-bento-tagline-bubble__quote {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2rem;
+}
+
+.brand-bento-tagline-bubble__quote-mark {
+  font-family: 'Fredoka', serif;
+  font-size: 1.4rem;
+  color: #F48A17;
+  line-height: 0.5;
+}
+
+.brand-bento-tagline-bubble__text {
+  font-family: 'Fredoka', 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.1rem, 1.4vw, 1.3rem);
+  color: #5C2D08;
+}
+
+.brand-bento-tagline-sparkle {
+  position: absolute;
+  top: -12px;
+  right: 14px;
+  background: #0B1C7D;
+  color: #FFF;
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(11, 28, 125, 0.25);
+  pointer-events: none;
+}
+
+/* Dual Mission & Vision Grid */
+.brand-bento-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+}
+
+@media (max-width: 640px) {
+  .brand-bento-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.brand-bento-card--mission {
+  border-color: rgba(244, 138, 23, 0.32);
+}
+
+.brand-bento-card--vision {
+  border-color: rgba(11, 28, 125, 0.24);
+}
+
+.brand-bento-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.brand-bento-tag {
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.brand-bento-tag--orange {
+  color: #B35B00;
+}
+
+.brand-bento-tag--blue {
+  color: #0B1C7D;
+}
+
+.brand-bento-chip {
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: rgba(42, 22, 10, 0.05);
+  color: rgba(42, 22, 10, 0.6);
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+}
+
+.brand-bento-card__title {
+  margin: 0 0 0.45rem 0;
+  font-family: 'Fredoka', 'Arial Rounded MT Bold', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1rem, 1.25vw, 1.15rem);
+  color: #2A160A;
+  line-height: 1.25;
+}
+
+.brand-bento-card__body {
+  margin: 0;
+  font-family: var(--f-body, sans-serif);
+  font-size: clamp(0.84rem, 0.96vw, 0.92rem);
+  color: #432717;
+  line-height: 1.52;
+  flex-grow: 1;
+}
+
+/* Touchpoints */
+.brand-bento-touchpoints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+}
+
+.brand-bento-touchpoint {
+  background: #FDF4E7;
+  border: 1px solid rgba(244, 138, 23, 0.3);
+  border-radius: 999px;
+  padding: 0.28rem 0.75rem;
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #693305;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.15s;
+}
+
+.brand-bento-touchpoint:hover,
+.brand-bento-touchpoint.is-active {
+  background: #F48A17;
+  color: #FFF;
+  border-color: #F48A17;
+  transform: translateY(-1px);
+}
+
+.brand-bento-touchpoint-detail {
+  margin-top: 0.45rem;
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #B35B00;
+  background: rgba(244, 138, 23, 0.1);
+  padding: 0.25rem 0.55rem;
+  border-radius: 8px;
+}
+
+/* Bottom Pillars */
+.brand-bento-pillars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: auto;
+  padding-top: 0.35rem;
+}
+
+.brand-bento-pillar {
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: rgba(244, 138, 23, 0.1);
+  border: 1px solid rgba(244, 138, 23, 0.25);
+  color: #6C3505;
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  cursor: default;
+  transition: transform 0.16s, background 0.16s;
+}
+
+.brand-bento-pillar:hover {
+  transform: translateY(-2px);
+  background: rgba(244, 138, 23, 0.18);
+}
+
+/* =====================================================================
+   SCROLL-DRIVEN STORY CARD DECK (Snug Height & Horizontally Centered)
+   ===================================================================== */
+.concept-slide__col-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+}
+
+.story-deck-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Snug Stack Container (No large empty space, room for peeking cards) */
+.story-deck-stack {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  min-height: 275px;
+  margin: 0 auto;
+}
+
+/* Base Card Style */
+.story-deck-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  min-height: 235px;
+  border-radius: 22px;
+  padding: clamp(1.2rem, 1.8vw, 1.45rem);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  transform-origin: center bottom;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Active Top Card */
+.story-deck-card--active {
+  z-index: 5;
+  background: #FFFDF8;
+  border: 1.5px solid rgba(244, 138, 23, 0.4);
+  box-shadow: 0 14px 32px rgba(42, 22, 10, 0.08), 0 3px 8px rgba(42, 22, 10, 0.04);
+  cursor: pointer;
+}
+
+/* Middle Peeking Card */
+.story-deck-card--middle {
+  z-index: 3;
+  transform: translateY(12px) scale(0.96) rotate(1.8deg);
+  background: #FAF2E4;
+  border: 1.5px solid rgba(165, 125, 85, 0.22);
+  box-shadow: 0 8px 20px rgba(42, 22, 10, 0.05);
+  opacity: 0.92;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.25s, opacity 0.25s;
+}
+
+.story-deck-card--middle:hover {
+  transform: translateY(9px) scale(0.97) rotate(1deg);
+  opacity: 1;
+}
+
+/* Bottom Card */
+.story-deck-card--bottom {
+  z-index: 1;
+  transform: translateY(22px) scale(0.92) rotate(-2.2deg);
+  background: #F4E8D3;
+  border: 1.5px solid rgba(165, 125, 85, 0.14);
+  box-shadow: 0 4px 12px rgba(42, 22, 10, 0.03);
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+/* Card Elements */
+.story-deck-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.story-deck-card__tag {
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #0B1C7D;
+}
+
+.story-deck-card__num {
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(42, 22, 10, 0.4);
+}
+
+.story-deck-card__badge-cluster {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.story-deck-card__pill {
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: rgba(244, 138, 23, 0.14);
+  color: #B35B00;
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.story-deck-card__step {
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #0B1C7D;
+  background: rgba(11, 28, 125, 0.08);
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.story-deck-card__cookie-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.story-deck-card__title {
+  margin: 0 0 0.55rem 0;
+  font-family: 'Fredoka', 'Arial Rounded MT Bold', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.2rem, 1.55vw, 1.45rem);
+  color: #2A160A;
+  line-height: 1.22;
+}
+
+.story-deck-card__body {
+  margin: 0;
+  font-family: var(--f-body, sans-serif);
+  font-size: clamp(0.85rem, 0.95vw, 0.92rem);
+  color: #432717;
+  line-height: 1.54;
+}

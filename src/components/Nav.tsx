@@ -1,27 +1,19 @@
-import { AnimatePresence, motion, useScroll, useSpring } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
-import { brand, logos, nav } from '../data/site';
+import { brand, nav } from '../data/site';
 
 export function Nav() {
   const [open, setOpen] = useState(false);
-  const [active, setActive] = useState('');
-  const { scrollYProgress } = useScroll();
-  const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 30, restDelta: 0.001 });
+  const [inOpening, setInOpening] = useState(true);
 
-  // scroll-spy on the four chapters
+  // Hide nav during Opening sequence until the curtain reveals PT#1
   useEffect(() => {
-    const els = nav.map((n) => document.getElementById(n.id)).filter(Boolean) as HTMLElement[];
-    const io = new IntersectionObserver(
-      (entries) => entries.forEach((e) => e.isIntersecting && setActive(e.target.id)),
-      { rootMargin: '-40% 0px -55% 0px' },
-    );
-    els.forEach((el) => io.observe(el));
-    const onTop = () => window.scrollY < 200 && setActive('');
-    window.addEventListener('scroll', onTop, { passive: true });
-    return () => {
-      io.disconnect();
-      window.removeEventListener('scroll', onTop);
+    const handleScroll = () => {
+      setInOpening(window.scrollY < window.innerHeight * 2.4);
     };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
@@ -35,29 +27,8 @@ export function Nav() {
   }, [open]);
 
   return (
-    <header className="nav">
+    <header className="nav" style={{ opacity: inOpening ? 0 : 1, pointerEvents: inOpening ? 'none' : undefined, transition: 'opacity 0.35s ease' }}>
       <div className="nav__bar">
-        <a href="#top" className="nav__logo" onClick={() => setOpen(false)}>
-          <img src={logos.primaryTrim} alt={`${brand.name} — back to top`} width={479} height={196} />
-        </a>
-
-        <nav className="nav__links" aria-label="Chapters">
-          <ul>
-            {nav.map((n) => (
-              <li key={n.id}>
-                <a href={`#${n.id}`} aria-current={active === n.id ? 'true' : undefined}>
-                  {active === n.id && (
-                    <motion.span layoutId="nav-pill" className="nav__pill" transition={{ type: 'spring', stiffness: 420, damping: 34 }} />
-                  )}
-                  <span className="nav__num">{n.chapter}</span>
-                  <span className="nav__label">{n.label}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
-          <motion.span className="nav__progress" style={{ scaleX: progress }} aria-hidden="true" />
-        </nav>
-
         <button
           type="button"
           className="nav__toggle"

@@ -30,17 +30,26 @@
 .band--orange { --band-bg: var(--orange); }
 .band--peach { --band-bg: var(--peach); }
 
-/* scalloped divider: the band "bites" into the section above */
+/* Melted chocolate syrup drip divider between bands */
 .band + .band::before,
+.concept-slide-section::before,
+.concept-slide-section + .band::before,
 .footer::before {
   content: '';
   position: absolute;
   left: 0;
   right: 0;
-  top: -21px;
-  height: 22px;
-  background: radial-gradient(circle at 50% 100%, var(--band-bg) 0 15px, transparent 15.5px) 0 0 / 38px 22px repeat-x;
+  top: -62px;
+  height: 64px;
+  background: var(--band-bg, #F8F1E5);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 80' preserveAspectRatio='none'%3E%3Cpath fill='%23000' d='M0,26 C28,26 36,58 58,58 C80,58 88,20 120,20 C152,20 162,44 186,44 C210,44 220,16 258,16 C296,16 304,68 330,68 C356,68 364,22 402,22 C440,22 452,48 476,48 C500,48 510,18 548,18 C586,18 594,62 620,62 C646,62 654,24 696,24 C738,24 748,52 774,52 C800,52 810,14 848,14 C886,14 894,70 922,70 C950,70 958,22 998,22 C1038,22 1048,46 1072,46 C1096,46 1106,18 1146,18 C1186,18 1194,60 1220,60 C1246,60 1254,22 1296,22 C1338,22 1348,50 1374,50 C1400,50 1412,24 1440,24 L1440,80 L0,80 Z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 80' preserveAspectRatio='none'%3E%3Cpath fill='%23000' d='M0,26 C28,26 36,58 58,58 C80,58 88,20 120,20 C152,20 162,44 186,44 C210,44 220,16 258,16 C296,16 304,68 330,68 C356,68 364,22 402,22 C440,22 452,48 476,48 C500,48 510,18 548,18 C586,18 594,62 620,62 C646,62 654,24 696,24 C738,24 748,52 774,52 C800,52 810,14 848,14 C886,14 894,70 922,70 C950,70 958,22 998,22 C1038,22 1048,46 1072,46 C1096,46 1106,18 1146,18 C1186,18 1194,60 1220,60 C1246,60 1254,22 1296,22 C1338,22 1348,50 1374,50 C1400,50 1412,24 1440,24 L1440,80 L0,80 Z'/%3E%3C/svg%3E");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
   pointer-events: none;
+  z-index: 15;
 }
 .footer {
   position: relative;

@@ -1,183 +1,380 @@
-import { useEffect, useRef, useState, type FocusEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Img } from '../data/site';
-import { useLightbox } from './Lightbox';
+import { useActiveLightboxItem, useLightbox } from './Lightbox';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 
-const SPEED = 42; // px per second, moving LEFT → RIGHT
-const COPIES = 3; // enough copies to cover ultra-wide screens seamlessly
+const COPIES = 3; // 3 sets so user can swipe left or right endlessly from the middle set
+const REST_TILTS = [-2.4, 1.9, -1.5, 2.3, -2.0, 1.6];
+
+/** Wooden Clothespin SVG that clips over the straight horizontal cord */
+function WoodenPin() {
+  return (
+    <span className="polaroid-pin" aria-hidden="true">
+      <svg width="28" height="56" viewBox="0 0 26 54" fill="none">
+        {/* Back shadow */}
+        <rect x="4" y="2" width="18" height="50" rx="3" fill="rgba(25, 10, 3, 0.35)" transform="translate(2, 2)" />
+        {/* Left wood half */}
+        <path
+          d="M4 4C4 2.34315 5.34315 1 7 1H13V51H6C4.89543 51 4 50.1046 4 49V4Z"
+          fill="#DEC096"
+        />
+        {/* Right wood half */}
+        <path
+          d="M13 1H19C20.6569 1 22 2.34315 22 4V49C22 50.1046 21.1046 51 20 51H13V1Z"
+          fill="#CDA97B"
+        />
+        {/* Bevel groove where the straight cord passes */}
+        <rect x="4" y="19" width="18" height="4.5" rx="1" fill="#A67F50" />
+        {/* Metal spring coil band */}
+        <rect x="3.5" y="20" width="19" height="2.5" rx="1.2" fill="#EFEAE2" />
+        <rect x="11.5" y="16" width="3" height="9" rx="1" fill="#D5CEC2" />
+        {/* Bottom notch grip */}
+        <path d="M9 51L13 44L17 51H9Z" fill="#8C653A" opacity="0.55" />
+      </svg>
+    </span>
+  );
+}
 
 /**
- * Seamless, infinite, left-to-right marquee.
- * - rAF-driven transform (no jumps: offset wraps by exactly one set width)
- * - drag / swipe with pointer events, pause on hover, focus, drag, off-screen
- * - prev/next + pause buttons, keyboard arrows; reduced-motion = no autoplay
+ * Interactive Polaroid Clothesline / Closet Rack.
+ * - Uses native horizontal scroll + direct mouse grab-and-drag with inertia
+ * - Works with mouse drag, touchscreen swipe, trackpad 2-finger swipe, and arrow buttons
+ * - Seamless infinite loop (starts in middle set so you can swipe left or right immediately)
+ * - Pendulum sway physics as Polaroids slide along the straight cord
+ * - Click any Polaroid to zoom in Lightbox
  */
 export function Marquee({ items }: { items: Img[] }) {
   const reduced = useReducedMotion();
   const open = useLightbox();
-  const viewport = useRef<HTMLDivElement>(null);
-  const track = useRef<HTMLDivElement>(null);
-  const firstSet = useRef<HTMLDivElement>(null);
+  const activeItem = useActiveLightboxItem();
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const firstSetRef = useRef<HTMLDivElement>(null);
 
-  const s = useRef({ offset: 0, setW: 1, hover: false, focus: false, drag: false, onscreen: false, nudge: 0 });
-  const dragInfo = useRef({ x: 0, start: 0, moved: 0, id: -1 });
-  const [userPaused, setUserPaused] = useState(false);
-  const pausedRef = useRef(false);
-  pausedRef.current = userPaused || reduced;
+  const [hoveredKey, setHoveredKey] = useState<string | null>(null);
+  const [isDraggingUI, setIsDraggingUI] = useState(false);
 
-  // measure one set width
+  const state = useRef({
+    setW: 0,
+    initialized: false,
+    isDown: false,
+    startX: 0,
+    startScrollLeft: 0,
+    lastPageX: 0,
+    lastTime: 0,
+    vx: 0,
+    moved: 0,
+    lastScrollLeft: 0,
+    swing: 0,
+    swingVel: 0,
+  });
+
+  // Measure set width and center scrollLeft on the middle set (set #1)
   useEffect(() => {
-    const el = firstSet.current;
-    if (!el) return;
-    const ro = new ResizeObserver(() => {
-      const gap = parseFloat(getComputedStyle(track.current!).columnGap) || 0;
-      s.current.setW = el.offsetWidth + gap;
-    });
+    const vp = viewportRef.current;
+    const el = firstSetRef.current;
+    const tr = trackRef.current;
+    if (!vp || !el || !tr) return;
+
+    const measure = () => {
+      const gap = parseFloat(getComputedStyle(tr).columnGap) || 0;
+      const w = el.offsetWidth + gap;
+      if (w > 0) {
+        state.current.setW = w;
+        if (!state.current.initialized) {
+          vp.scrollLeft = w;
+          state.current.lastScrollLeft = w;
+          state.current.initialized = true;
+        }
+      }
+    };
+
+    measure();
+    const ro = new ResizeObserver(measure);
     ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
+    window.addEventListener('resize', measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [items.length]);
 
-  // only animate when visible
-  useEffect(() => {
-    const io = new IntersectionObserver(([e]) => (s.current.onscreen = e.isIntersecting));
-    if (viewport.current) io.observe(viewport.current);
-    return () => io.disconnect();
-  }, []);
-
-  // animation loop
+  // Momentum + seamless wrap + pendulum swing animation loop
   useEffect(() => {
     let raf = 0;
-    let prev = performance.now();
-    let lastX = NaN;
-    const tick = (now: number) => {
-      const dt = Math.min(0.05, (now - prev) / 1000);
-      prev = now;
-      const st = s.current;
-      if (st.nudge !== 0) {
-        const step = st.nudge * Math.min(1, dt * 9);
-        st.offset += step;
-        st.nudge -= step;
-        if (Math.abs(st.nudge) < 0.5) st.nudge = 0;
+    let lastSwing = NaN;
+
+    const tick = () => {
+      const vp = viewportRef.current;
+      const tr = trackRef.current;
+      const s = state.current;
+
+      if (vp && s.setW > 0) {
+        // Apply momentum when mouse is released
+        if (!s.isDown && Math.abs(s.vx) > 0.1) {
+          vp.scrollLeft += s.vx;
+          s.vx *= 0.92;
+          if (Math.abs(s.vx) < 0.1) s.vx = 0;
+        }
+
+        // Seamless infinite wrap around middle set
+        if (vp.scrollLeft <= s.setW * 0.25) {
+          vp.scrollLeft += s.setW;
+          s.lastScrollLeft += s.setW;
+          if (s.isDown) s.startScrollLeft += s.setW;
+        } else if (vp.scrollLeft >= s.setW * 1.75) {
+          vp.scrollLeft -= s.setW;
+          s.lastScrollLeft -= s.setW;
+          if (s.isDown) s.startScrollLeft -= s.setW;
+        }
+
+        // Calculate scroll velocity for pendulum swing
+        const scrollDelta = vp.scrollLeft - s.lastScrollLeft;
+        s.lastScrollLeft = vp.scrollLeft;
+
+        if (!reduced) {
+          const targetSwing = Math.max(-14, Math.min(14, scrollDelta * 0.55));
+          const springForce = (targetSwing - s.swing) * 0.16;
+          s.swingVel = (s.swingVel + springForce) * 0.8;
+          s.swing += s.swingVel;
+        } else {
+          s.swing = 0;
+        }
+
+        if (tr && Math.abs(s.swing - lastSwing) > 0.02) {
+          tr.style.setProperty('--rack-swing', `${s.swing.toFixed(2)}deg`);
+          lastSwing = s.swing;
+        }
       }
-      if (st.onscreen && !pausedRef.current && !st.hover && !st.focus && !st.drag) st.offset += SPEED * dt;
-      const w = st.setW;
-      st.offset = ((st.offset % w) + w) % w;
-      const x = st.offset - w;
-      if (track.current && x !== lastX) {
-        track.current.style.transform = `translate3d(${x}px,0,0)`;
-        lastX = x;
-      }
+
       raf = requestAnimationFrame(tick);
     };
+
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
+  }, [reduced]);
+
+  // Mouse grab-and-drag listeners on window
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => {
+      const s = state.current;
+      const vp = viewportRef.current;
+      if (!s.isDown || !vp) return;
+
+      e.preventDefault();
+      const dx = e.pageX - s.startX;
+      s.moved = Math.max(s.moved, Math.abs(dx));
+
+      if (s.moved > 4) {
+        setIsDraggingUI(true);
+      }
+
+      const now = performance.now();
+      const dt = Math.max(8, now - s.lastTime);
+      const stepDx = e.pageX - s.lastPageX;
+      s.vx = -(stepDx / dt) * 15;
+      s.lastPageX = e.pageX;
+      s.lastTime = now;
+
+      vp.scrollLeft = s.startScrollLeft - dx;
+    };
+
+    const onMouseUp = () => {
+      const s = state.current;
+      if (!s.isDown) return;
+      s.isDown = false;
+      setIsDraggingUI(false);
+    };
+
+    window.addEventListener('mousemove', onMouseMove, { passive: false });
+    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('blur', onMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('blur', onMouseUp);
+    };
   }, []);
 
-  const itemStep = () => {
-    const first = firstSet.current?.firstElementChild as HTMLElement | null;
-    const gap = track.current ? parseFloat(getComputedStyle(track.current).columnGap) || 0 : 0;
-    return (first?.offsetWidth ?? 300) + gap;
-  };
-  const nudge = (dir: 1 | -1) => {
-    s.current.nudge += dir * itemStep();
-  };
-
-  const onPointerDown = (e: React.PointerEvent) => {
-    if (e.pointerType === 'mouse' && e.button !== 0) return;
-    dragInfo.current = { x: e.clientX, start: s.current.offset, moved: 0, id: e.pointerId };
-    s.current.drag = true;
-    s.current.nudge = 0;
-  };
-  const onPointerMove = (e: React.PointerEvent) => {
-    if (!s.current.drag || e.pointerId !== dragInfo.current.id) return;
-    const dx = e.clientX - dragInfo.current.x;
-    dragInfo.current.moved = Math.max(dragInfo.current.moved, Math.abs(dx));
-    if (dragInfo.current.moved > 4 && !viewport.current!.hasPointerCapture(e.pointerId)) {
-      viewport.current!.setPointerCapture(e.pointerId);
-      viewport.current!.classList.add('is-dragging');
-    }
-    s.current.offset = dragInfo.current.start + dx;
-  };
-  const endDrag = (e: React.PointerEvent) => {
-    if (e.pointerId !== dragInfo.current.id) return;
-    s.current.drag = false;
-    viewport.current?.classList.remove('is-dragging');
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    const vp = viewportRef.current;
+    if (!vp) return;
+    const s = state.current;
+    s.isDown = true;
+    s.startX = e.pageX;
+    s.lastPageX = e.pageX;
+    s.lastTime = performance.now();
+    s.startScrollLeft = vp.scrollLeft;
+    s.moved = 0;
+    s.vx = 0;
   };
 
-  // keep a keyboard-focused item fully in view
-  const onFocusItem = (e: FocusEvent<HTMLButtonElement>) => {
-    const vp = viewport.current!.getBoundingClientRect();
-    const r = e.currentTarget.getBoundingClientRect();
-    if (r.left < vp.left + 16) s.current.offset += vp.left + 16 - r.left;
-    else if (r.right > vp.right - 16) s.current.offset -= r.right - (vp.right - 16);
+  const onTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+    const s = state.current;
+    s.startX = touch.pageX;
+    s.moved = 0;
+    s.vx = 0;
   };
 
-  const isPaused = userPaused || reduced;
+  const onTouchMove = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+    const s = state.current;
+    s.moved = Math.max(s.moved, Math.abs(touch.pageX - s.startX));
+  };
+
+  const slideBy = (dir: 1 | -1) => {
+    const firstCard = firstSetRef.current?.firstElementChild as HTMLElement | null;
+    const gap = trackRef.current ? parseFloat(getComputedStyle(trackRef.current).columnGap) || 0 : 0;
+    const step = (firstCard?.offsetWidth ?? 320) + gap;
+    state.current.vx = dir * (step * 0.085);
+  };
 
   return (
-    <div
-      className="marquee"
-      onFocus={() => (s.current.focus = true)}
-      onBlur={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget as Node)) s.current.focus = false;
-      }}
-    >
-      <div className="marquee__controls">
-        <div className="marquee__buttons">
-          <button type="button" className="icon-btn" onClick={() => nudge(-1)} aria-label="Show previous posts">←</button>
-          {!reduced && (
-            <button type="button" className="icon-btn icon-btn--wide" onClick={() => setUserPaused((v) => !v)} aria-pressed={userPaused}>
-              {isPaused ? '▶ Play' : '❚❚ Pause'}
-            </button>
-          )}
-          <button type="button" className="icon-btn" onClick={() => nudge(1)} aria-label="Show next posts">→</button>
-        </div>
-      </div>
+    <div className="polaroid-rack">
+      {/* Interactive Swipe Hint */}
 
-      <div
-        ref={viewport}
-        className="marquee__viewport"
-        role="region"
-        aria-roledescription="carousel"
-        aria-label="Supporting kOKi.co brand posts"
-        onPointerEnter={(e) => e.pointerType === 'mouse' && (s.current.hover = true)}
-        onPointerLeave={(e) => e.pointerType === 'mouse' && (s.current.hover = false)}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-        onKeyDown={(e) => {
-          if (e.key === 'ArrowLeft') { e.preventDefault(); nudge(-1); }
-          if (e.key === 'ArrowRight') { e.preventDefault(); nudge(1); }
-        }}
-      >
-        <div ref={track} className="marquee__track">
-          {Array.from({ length: COPIES }, (_, c) => (
-            <div
-              key={c}
-              ref={c === 0 ? firstSet : undefined}
-              className="marquee__set"
-              aria-hidden={c > 0 ? true : undefined}
-              inert={c > 0 ? true : undefined}
-            >
-              {items.map((im, i) => (
-                <button
-                  key={im.src}
-                  type="button"
-                  className="marquee__item"
-                  style={{ aspectRatio: `${im.width} / ${im.height}` }}
-                  onFocus={onFocusItem}
-                  onClick={(e) => {
-                    if (dragInfo.current.moved > 6) { e.preventDefault(); return; }
-                    open({ ...im, caption: `Supporting brand post ${i + 1} of ${items.length}` });
-                  }}
-                  aria-label={`Supporting post ${i + 1} of ${items.length} — view full size`}
-                >
-                  <img src={im.src} alt={c === 0 ? im.alt : ''} width={im.width} height={im.height} loading="lazy" decoding="async" draggable={false} />
-                </button>
-              ))}
-            </div>
-          ))}
+      <div className="polaroid-rack__stage">
+        {/* Straight Horizontal Line / Tali stretching all the way across */}
+        <div className="polaroid-rack__line" aria-hidden="true" />
+
+        {/* Left / Right Closet Slide Buttons */}
+        <button
+          type="button"
+          className="polaroid-rack__edge-btn polaroid-rack__edge-btn--prev"
+          onClick={() => slideBy(-1)}
+          aria-label="Slide Polaroids left"
+        >
+          ‹
+        </button>
+        <button
+          type="button"
+          className="polaroid-rack__edge-btn polaroid-rack__edge-btn--next"
+          onClick={() => slideBy(1)}
+          aria-label="Slide Polaroids right"
+        >
+          ›
+        </button>
+
+        {/* Scrollable & Draggable Viewport */}
+        <div
+          ref={viewportRef}
+          className={`polaroid-rack__viewport${isDraggingUI ? ' is-dragging' : ''}`}
+          role="region"
+          aria-roledescription="interactive polaroid clothesline"
+          aria-label="Supporting kOKi.co brand posts clipped on a line"
+          onMouseDown={onMouseDown}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onDragStart={(e) => e.preventDefault()}
+          onKeyDown={(e) => {
+            if (e.key === 'ArrowLeft') {
+              e.preventDefault();
+              slideBy(-1);
+            } else if (e.key === 'ArrowRight') {
+              e.preventDefault();
+              slideBy(1);
+            }
+          }}
+        >
+          {/* Sliding Rack Track */}
+          <div ref={trackRef} className="polaroid-rack__track">
+            {Array.from({ length: COPIES }, (_, c) => (
+              <div
+                key={c}
+                ref={c === 0 ? firstSetRef : undefined}
+                className="polaroid-rack__set"
+                aria-hidden={c !== 1 ? true : undefined}
+              >
+                {items.map((im, i) => {
+                  const key = `${c}-${i}`;
+                  const baseTilt = REST_TILTS[i % REST_TILTS.length];
+                  const isUnclipped = activeItem?.src === im.src;
+
+                  // Closet parting effect when hovering a sibling Polaroid in the same set
+                  let closetShift = 0;
+                  if (hoveredKey !== null) {
+                    const [hSet, hIdxStr] = hoveredKey.split('-');
+                    const hIdx = Number(hIdxStr);
+                    if (Number(hSet) === c && hIdx !== i) {
+                      closetShift = i < hIdx ? -18 : 18;
+                    }
+                  }
+
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      tabIndex={c === 1 ? 0 : -1}
+                      className={`polaroid-item${hoveredKey === key ? ' is-hovered' : ''}${isUnclipped ? ' is-unclipped' : ''}`}
+                      style={
+                        {
+                          '--base-tilt': `${baseTilt}deg`,
+                          '--closet-shift': `${closetShift}px`,
+                        } as React.CSSProperties
+                      }
+                      onMouseEnter={() => setHoveredKey(key)}
+                      onMouseLeave={() => setHoveredKey((prev) => (prev === key ? null : prev))}
+                      onFocus={() => setHoveredKey(key)}
+                      onBlur={() => setHoveredKey((prev) => (prev === key ? null : prev))}
+                      onClick={(e) => {
+                        if (state.current.moved > 6) {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          return;
+                        }
+                        open({
+                          ...im,
+                          caption: `Supporting brand post ${i + 1} of ${items.length}`,
+                          polaroid: true,
+                          polaroidNum: `#${String(i + 1).padStart(2, '0')}`,
+                          author: im.author,
+                        });
+                      }}
+                      aria-label={`Supporting post ${i + 1} of ${items.length} — click to zoom`}
+                    >
+                      {/* Wooden Clothespin gripping the straight line */}
+                      <WoodenPin />
+
+                      {/* Classic Polaroid Frame */}
+                      <div className="polaroid-card">
+                        <div className="polaroid-card__photo-wrap">
+                          <img
+                            src={im.src}
+                            alt={c === 1 ? im.alt : ''}
+                            width={im.width}
+                            height={im.height}
+                            loading="eager"
+                            decoding="async"
+                            draggable={false}
+                            className="polaroid-card__img"
+                          />
+                          <span className="polaroid-card__zoom-pill" aria-hidden="true">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="11" cy="11" r="8" />
+                              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                              <line x1="11" y1="8" x2="11" y2="14" />
+                              <line x1="8" y1="11" x2="14" y2="11" />
+                            </svg>
+                            Zoom
+                          </span>
+                        </div>
+
+                        {/* Polaroid Bottom Chin */}
+                        <div className="polaroid-card__chin">
+                          <span className="polaroid-card__num">#{String(i + 1).padStart(2, '0')}</span>
+                          <span className="polaroid-card__tag">{im.author ? `By ${im.author}` : 'kOKi.co Archive'}</span>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

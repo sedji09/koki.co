@@ -1,0 +1,539 @@
+/* =====================================================================
+   PRODUCT ACCORDION — Slicehaus-Style Interactive Horizontal Accordion
+   ===================================================================== */
+
+.flavor-accordion-section {
+  position: relative;
+  background: #F4ECE0;
+  color: #2A160A;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Organic chocolate syrup drip border at top and bottom */
+.flavor-accordion__wave {
+  width: 100%;
+  line-height: 0;
+  color: #F8F1E5; /* Match preceding background */
+}
+
+.flavor-accordion__wave--top svg {
+  display: block;
+  width: 100%;
+  height: clamp(44px, 5vw, 68px);
+}
+
+.flavor-accordion__wave--bottom {
+  margin-top: clamp(3rem, 5vh, 5rem);
+  background: transparent;
+  color: #F7D5B4; /* Match succeeding cream band below */
+}
+
+.flavor-accordion__wave--bottom svg {
+  display: block;
+  width: 100%;
+  height: clamp(35px, 4vw, 55px);
+}
+
+.flavor-accordion__container {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding-inline: max(1.5rem, env(safe-area-inset-left, 0px));
+}
+
+/* ── Section Header ─────────────────────────────────────────────────── */
+.flavor-accordion__header {
+  margin-bottom: clamp(1.8rem, 3.5vh, 2.8rem);
+}
+
+.flavor-accordion__badge-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+
+.flavor-accordion__pill {
+  display: inline-flex;
+  align-items: center;
+  background: #0B1C7D;
+  color: #FFFFFF;
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.32rem 0.95rem;
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(11, 28, 125, 0.2);
+}
+
+.flavor-accordion__meta {
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #7A4215;
+  letter-spacing: 0.02em;
+}
+
+.flavor-accordion__title {
+  margin: 0 0 0.85rem 0;
+  font-family: 'Anton', 'Impact', sans-serif !important;
+  font-size: clamp(2.4rem, 5vw, 4.2rem);
+  line-height: 0.98;
+  letter-spacing: 0.02em;
+  color: #2A160A;
+  text-transform: uppercase;
+}
+
+.flavor-accordion__subtitle {
+  max-width: 700px;
+  margin: 0;
+  font-family: var(--f-body, sans-serif);
+  font-size: clamp(1rem, 1.25vw, 1.15rem);
+  line-height: 1.55;
+  color: #4A2714;
+}
+
+/* ── Accordion Frame ────────────────────────────────────────────────── */
+.flavor-accordion {
+  display: flex;
+  flex-direction: row;
+  height: clamp(580px, 70vh, 670px);
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow:
+    0 24px 65px -15px rgba(42, 22, 10, 0.28),
+    0 0 0 1.5px rgba(255, 255, 255, 0.15);
+  background: #2A160A;
+  user-select: none;
+}
+
+/* ── Panels ─────────────────────────────────────────────────────────── */
+.flavor-accordion__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1.5px solid rgba(255, 255, 255, 0.08);
+  outline: none;
+  transition:
+    flex 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.4s ease,
+    filter 0.3s ease;
+}
+
+.flavor-accordion__panel:last-child {
+  border-right: none;
+}
+
+/* Collapsed Panel state (Desktop) */
+.flavor-accordion__panel.is-collapsed {
+  flex: 0.65;
+  cursor: pointer;
+  min-width: 48px;
+  filter: brightness(0.92);
+}
+
+.flavor-accordion__panel.is-collapsed:hover {
+  filter: brightness(1.1);
+}
+
+.flavor-accordion__panel.is-collapsed:focus-visible {
+  box-shadow: inset 0 0 0 2px #F48A17;
+}
+
+/* Active Panel state (Desktop) */
+.flavor-accordion__panel.is-active {
+  flex: 7.2;
+  cursor: default;
+  filter: brightness(1);
+}
+
+/* ── Collapsed Ribbon View ──────────────────────────────────────────── */
+.flavor-accordion__collapsed-strip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 1.6rem 0.4rem;
+  box-sizing: border-box;
+}
+
+.flavor-accordion__strip-num {
+  font-family: 'Fredoka', 'Arial Rounded MT Bold', sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.05em;
+  opacity: 0.65;
+}
+
+.flavor-accordion__strip-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
+
+.flavor-accordion__strip-title {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-family: 'Fredoka', 'Arial Rounded MT Bold', sans-serif;
+  font-weight: 600;
+  font-size: clamp(1.15rem, 1.45vw, 1.35rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.94;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.flavor-accordion__panel.is-collapsed:hover .flavor-accordion__strip-title {
+  opacity: 1;
+  transform: rotate(180deg) translateY(-4px);
+}
+
+.flavor-accordion__strip-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.flavor-accordion__strip-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.flavor-accordion__strip-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.flavor-accordion__strip-price {
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  opacity: 0.85;
+}
+
+/* ── Expanded Content View (Equal 50/50 Split, Rock-Solid Centering) ─── */
+.flavor-accordion__expanded-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  justify-items: center;
+  width: 100%;
+  height: 100%;
+  padding: clamp(1.8rem, 2.8vw, 2.6rem) clamp(2rem, 3.2vw, 3.2rem);
+  gap: clamp(1.5rem, 2.5vw, 3rem);
+  box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Left Column: Info (Pantay-pantay, Never Cut Off) */
+.flavor-accordion__info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  max-width: 460px;
+  justify-self: start;
+  z-index: 2;
+}
+
+/* Price Block (Slicehaus inspiration) */
+.flavor-accordion__price-block {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.65rem;
+}
+
+.flavor-accordion__price-label {
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  opacity: 0.8;
+  line-height: 1;
+  margin-bottom: 0.2rem;
+}
+
+.flavor-accordion__price-val {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.flavor-accordion__price-num {
+  font-family: 'Fredoka', 'Arial Rounded MT Bold', sans-serif;
+  font-weight: 700;
+  font-size: clamp(2.6rem, 3.8vw, 3.5rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+}
+
+.flavor-accordion__price-note {
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: rgba(255, 255, 255, 0.14);
+  padding: 0.22rem 0.65rem;
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  opacity: 0.9;
+}
+
+/* Flavor Name (Fredoka Font, Title Case, Balanced) */
+.flavor-accordion__title-group {
+  margin-bottom: 0.75rem;
+}
+
+.flavor-accordion__name {
+  margin: 0 0 0.35rem 0;
+  font-family: 'Fredoka', 'Arial Rounded MT Bold', sans-serif !important;
+  font-weight: 700;
+  font-size: clamp(1.85rem, 2.6vw, 2.5rem);
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: #FFFFFF;
+}
+
+.flavor-accordion__brand-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Fredoka', 'Arial Rounded MT Bold', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  opacity: 0.9;
+}
+
+.flavor-accordion__dot {
+  opacity: 0.5;
+}
+
+.flavor-accordion__cat {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  backdrop-filter: blur(8px);
+}
+
+/* Description (Pantay-pantay, Never Cut Off) */
+.flavor-accordion__desc {
+  margin: 0 0 0.85rem 0;
+  font-family: var(--f-body, sans-serif);
+  font-size: clamp(0.92rem, 1.1vw, 1.02rem);
+  line-height: 1.55;
+  opacity: 0.94;
+  max-width: 440px;
+}
+
+/* Tags */
+.flavor-accordion__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.85rem;
+}
+
+.flavor-accordion__tag {
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  letter-spacing: 0.02em;
+}
+
+/* Pairing */
+.flavor-accordion__pairing {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-family: var(--f-body, sans-serif);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  opacity: 0.88;
+}
+
+.flavor-accordion__pairing-title {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.flavor-accordion__pairing-desc {
+  font-style: italic;
+}
+
+/* Right Column: Visual Showcase (Fixed Position, Centered Horizontally) */
+.flavor-accordion__visual {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Horizontally Centered */
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.flavor-accordion__cookie-wrap {
+  position: relative;
+  width: clamp(260px, 28vw, 360px);
+  height: clamp(260px, 28vw, 360px);
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto; /* Horizontally Centered */
+  transform-origin: center center;
+}
+
+.flavor-accordion__cookie-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  filter:
+    drop-shadow(0 24px 36px rgba(0, 0, 0, 0.55))
+    drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ── Mobile / Tablet Responsive Layout (< 920px) ─────────────────────── */
+@media (max-width: 920px) {
+  .flavor-accordion {
+    flex-direction: column;
+    height: auto;
+    border-radius: 20px;
+  }
+
+  .flavor-accordion__panel {
+    border-right: none;
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .flavor-accordion__panel:last-child {
+    border-bottom: none;
+  }
+
+  .flavor-accordion__panel.is-collapsed {
+    flex: none;
+    height: 68px;
+    min-height: 68px;
+  }
+
+  .flavor-accordion__collapsed-strip {
+    flex-direction: row;
+    padding: 0 1.4rem;
+    height: 68px;
+  }
+
+  .flavor-accordion__strip-center {
+    justify-content: flex-start;
+    padding-left: 1rem;
+  }
+
+  .flavor-accordion__strip-title {
+    writing-mode: horizontal-tb;
+    transform: none;
+    font-size: 1.15rem;
+    letter-spacing: 0.04em;
+  }
+
+  .flavor-accordion__panel.is-collapsed:hover .flavor-accordion__strip-title {
+    transform: translateX(4px);
+  }
+
+  .flavor-accordion__strip-bottom {
+    flex-direction: row;
+    gap: 0.8rem;
+  }
+
+  .flavor-accordion__panel.is-active {
+    flex: none;
+    height: auto;
+  }
+
+  .flavor-accordion__expanded-content {
+    grid-template-columns: 1fr;
+    gap: 1.8rem;
+    padding: 2rem 1.5rem;
+  }
+
+  .flavor-accordion__info {
+    padding-right: 0;
+    max-width: 100%;
+  }
+
+  .flavor-accordion__cookie-wrap {
+    width: clamp(220px, 62vw, 300px);
+    height: clamp(220px, 62vw, 300px);
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .flavor-accordion-section {
+    overflow: clip;
+  }
+
+  .flavor-accordion {
+    overflow: visible;
+    background: transparent;
+    box-shadow: none;
+    gap: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .flavor-accordion__panel.is-active {
+    position: sticky;
+    top: calc(74px + var(--card-index, 0) * 14px);
+    z-index: calc(10 + var(--card-index, 0));
+    border-radius: 24px;
+    border-right: none;
+    box-shadow:
+      0 18px 40px -10px rgba(42, 22, 10, 0.35),
+      0 0 0 1.5px rgba(255, 255, 255, 0.14);
+  }
+
+  .flavor-accordion__expanded-content {
+    padding: 1.5rem 1.25rem;
+    gap: 1.25rem;
+  }
+
+  .flavor-accordion__cookie-wrap {
+    width: clamp(190px, 58vw, 250px);
+    height: clamp(190px, 58vw, 250px);
+  }
+}

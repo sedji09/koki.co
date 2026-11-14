@@ -1,115 +1,231 @@
-import { audience, owners, services, story, supportingPosts } from '../data/site';
+import { useEffect, useRef, useState } from 'react';
+import { services } from '../data/site';
 import { motion } from 'motion/react';
-import { useLightbox } from './Lightbox';
-import { ProductMenu } from './ProductMenu';
-import { ChapterHead, ExpandHint, ParallaxImg, RevealMedia, Tile, type Tone } from './ui';
+import { BrandBentoHub } from './BrandBentoHub';
+import { ElasticLettering } from './ElasticLettering';
+import { ProductAccordion } from './ProductAccordion';
+import { StoryCardDeck } from './StoryCardDeck';
+import { FoundersSection } from './FoundersSection';
+import { type Tone } from './ui';
+import '../styles/services.css';
 
-const EASE = [0.22, 1, 0.36, 1] as const;
-const rise = (i: number, x = 0) => ({
-  initial: { opacity: 0, y: x ? 0 : 24, x },
-  whileInView: { opacity: 1, y: 0, x: 0 },
-  viewport: { once: true, amount: 0.6 },
-  transition: { duration: 0.7, ease: EASE, delay: i * 0.07 },
-});
-
-const lineup = supportingPosts[1]; // kOKi.co's own flavor-lineup post
 const serviceTones: Tone[] = ['orange', 'paper', 'peach', 'choc', 'caramel'];
 
 export function Concept() {
-  const open = useLightbox();
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [scrollCardIndex, setScrollCardIndex] = useState(0);
+  const [isSlideInView, setIsSlideInView] = useState(false);
+
+  // Scroll effect:
+  // 1. Story cards flip as you scroll through the section
+  // 2. Staggered pop-up entrance for bento cards when entering view
+  useEffect(() => {
+    const section = document.getElementById('concept');
+    const track = trackRef.current;
+    if (!section) return;
+
+    let rafId = 0;
+
+    const onScroll = () => {
+      rafId = 0;
+      const vh = window.innerHeight;
+
+      // Check if PT #1 slide is actually locked in full view
+      if (track) {
+        const trackRect = track.getBoundingClientRect();
+        // Trigger precisely when PT #1 locks into the viewport (top <= 80px)
+        const isLockedInView = trackRect.top <= 80 && trackRect.bottom >= vh * 0.2;
+        setIsSlideInView(isLockedInView);
+      }
+
+      // Scroll-driven story card flipping
+      if (track) {
+        const trackRect = track.getBoundingClientRect();
+        const scrollable = trackRect.height - vh;
+        if (scrollable > 60) {
+          // Progress through pinned slide from 0 to 1
+          const p = Math.min(1, Math.max(0, -trackRect.top / scrollable));
+          if (p < 0.35) {
+            setScrollCardIndex(0);
+          } else if (p < 0.70) {
+            setScrollCardIndex(1);
+          } else {
+            setScrollCardIndex(2);
+          }
+        } else {
+          // Unpinned fallback
+          const progress = Math.min(1, Math.max(0, (vh - trackRect.top) / (vh + trackRect.height)));
+          if (progress < 0.42) {
+            setScrollCardIndex(0);
+          } else if (progress < 0.72) {
+            setScrollCardIndex(1);
+          } else {
+            setScrollCardIndex(2);
+          }
+        }
+      }
+    };
+
+    const handleScroll = () => {
+      if (!rafId) rafId = requestAnimationFrame(onScroll);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll);
+    onScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, []);
 
   return (
-    <section id="concept" className="chapter band band--cream" aria-labelledby="concept-title">
-      <ChapterHead id="concept" n="01" code="PT#1" title={<>Business <em>Concept</em></>} />
+    <section id="concept" className="chapter concept-slide-section" aria-labelledby="concept-title">
+      {/* ── Slide: PT #1 Business Concept Development with Scroll Track ── */}
+      <div ref={trackRef} className="concept-slide-track">
+        <div className="concept-slide concept-slide--sticky">
+          <div className="concept-slide__inner">
+            {/* PT #1 Blue Pill Badge on its own row above the title */}
+            <motion.div
+              className="concept-slide__badge-wrap"
+              initial={{ opacity: 0, x: -22, scale: 0.85 }}
+              animate={isSlideInView ? { opacity: 1, x: 0, scale: 1 } : { opacity: 0, x: -22, scale: 0.85 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 20 }}
+            >
+              <span className="concept-slide__badge">PT #1</span>
+            </motion.div>
 
-      {/* ---------- Story ---------- */}
-      <div className="bento bento--story">
-        <Tile tone="paper" className="story__history" as="article" labelledBy="history-h">
-          <h3 id="history-h" className="tile-h">History</h3>
-          {story.history.map((p) => <p key={p} className="lead">{p}</p>)}
-          <ol className="steps" aria-label="How kOKi.co grew">
-            {story.timeline.map((t, i) => (
-              <motion.li key={t.label} {...rise(i)}>
-                <span className="steps__dot" aria-hidden="true">{i + 1}</span>
-                <span className="steps__label">{t.label}</span>
-                <span className="steps__text">{t.text}</span>
+            {/* Big Title with Elastic Lettering on its own full line */}
+            <motion.div
+              initial={{ opacity: 0, x: -36, y: 10 }}
+              animate={isSlideInView ? { opacity: 1, x: 0, y: 0 } : { opacity: 0, x: -36, y: 10 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 22, delay: 0.06 }}
+            >
+              <ElasticLettering
+                text="BUSINESS CONCEPT DEVELOPMENT"
+                as="h2"
+                id="concept-title"
+                className="concept-slide__title"
+                tensionColor="#F48A17"
+                stiffness={280}
+                damping={14}
+                maxStretch={180}
+              />
+            </motion.div>
+
+            {/* Two-Column Bento Presentation Grid */}
+            <div className="concept-slide__grid">
+              {/* Left Column: Interactive Brand Identity Bento Hub (Staggered Pop-Up Entrance) */}
+              <div className="concept-slide__col-info">
+                <BrandBentoHub inView={isSlideInView} />
+              </div>
+
+              {/* Right Column: Scroll-Driven Story Deck (Pop-Up Entrance) */}
+              <motion.div
+                className="concept-slide__col-card"
+                initial={{ opacity: 0, y: 35, scale: 0.94 }}
+                animate={isSlideInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 35, scale: 0.94 }}
+                transition={{ type: 'spring', stiffness: 320, damping: 22, delay: 0.18 }}
+              >
+                <StoryCardDeck
+                  activeIndex={scrollCardIndex}
+                  onIndexChange={setScrollCardIndex}
+                />
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Products: Slicehaus-Style Interactive Accordion ── */}
+      <ProductAccordion />
+
+      {/* ── Continuation: Services, Owners ── */}
+      <div className="band band--cream" style={{ paddingTop: 'clamp(2rem, 3.5vw, 4rem)' }}>
+        {/* Services */}
+        <div id="services" className="services-wrap">
+          <div className="services-header">
+            <motion.div
+              initial={{ opacity: 0, x: -52, y: 12 }}
+              whileInView={{ opacity: 1, x: 0, y: 0 }}
+              viewport={{ once: false, amount: 0.25 }}
+              transition={{ type: 'spring', stiffness: 240, damping: 22 }}
+            >
+              <ElasticLettering
+                text="SERVICES"
+                as="h3"
+                id="services-title"
+                className="services-title"
+                tensionColor="#F48A17"
+                stiffness={280}
+                damping={14}
+                maxStretch={180}
+              />
+              <motion.div
+                className="chapter-head-unified__baseline-wrap"
+                aria-hidden="true"
+                initial={{ scaleX: 0, opacity: 0 }}
+                whileInView={{ scaleX: 1, opacity: 1 }}
+                viewport={{ once: false, amount: 0.25 }}
+                transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1], delay: 0.16 }}
+              >
+                <span className="chapter-head-unified__baseline" style={{ backgroundColor: '#F48A17' }} />
+                <span className="chapter-head-unified__baseline-dot" style={{ backgroundColor: '#0B1C7D' }} />
+              </motion.div>
+            </motion.div>
+          </div>
+
+          <ul className="services">
+            {services.map((s, i) => (
+              <motion.li
+                key={s.title}
+                className={`tile tile--${serviceTones[i]} service`}
+                initial={{ opacity: 0, y: 55, scale: 0.86 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 280,
+                  damping: 18,
+                  mass: 0.75,
+                  delay: i * 0.1,
+                }}
+                whileHover={{
+                  y: -8,
+                  transition: { type: 'spring', stiffness: 380, damping: 18 },
+                }}
+              >
+                <div className="service__media">
+                  <motion.img
+                    src={s.image}
+                    alt={s.alt}
+                    width={400}
+                    height={400}
+                    loading="lazy"
+                    decoding="async"
+                    className="service__img"
+                    initial={{ opacity: 0, scale: 0.85 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true, amount: 0.15 }}
+                    transition={{
+                      type: 'spring',
+                      stiffness: 300,
+                      damping: 20,
+                      delay: i * 0.1 + 0.08,
+                    }}
+                  />
+                </div>
+                <h4 className="service__title">{s.title}</h4>
+                <p className="service__text">{s.text}</p>
               </motion.li>
             ))}
-          </ol>
-        </Tile>
-
-        <Tile tone="orange" className="story__mission" as="article" labelledBy="mission-h">
-          <motion.h3 id="mission-h" className="mv-word" {...rise(0, -90)}>Mission</motion.h3>
-          <p className="mv-text">{story.mission}</p>
-        </Tile>
-
-        <Tile tone="peach" className="story__vision" as="article" delay={0.08} labelledBy="vision-h">
-          <motion.h3 id="vision-h" className="mv-word" {...rise(1, 90)}>Vision</motion.h3>
-          <p className="mv-text">{story.vision}</p>
-        </Tile>
-
-        <Tile tone="choc" className="story__appeal" as="article" labelledBy="appeal-h">
-          <h3 id="appeal-h" className="appeal-title">
-            We bring the cookies <em>closer to you.</em>
-          </h3>
-          <ul className="chips" aria-label="Made for">
-            {audience.map((a) => <li key={a} className="chip chip--light">{a}</li>)}
           </ul>
-        </Tile>
-      </div>
+        </div>
 
-      {/* ---------- Menu ---------- */}
-      <div id="menu" className="bento bento--menu">
-        <Tile tone="paper" className="menu" labelledBy="menu-h">
-          <h3 id="menu-h" className="tile-h">Products</h3>
-          <ProductMenu />
-        </Tile>
-
-        <Tile tone="peach" className="menu__photo" as="figure" delay={0.08}>
-          <RevealMedia>
-            <button type="button" className="img-btn" onClick={() => open({ ...lineup, caption: 'kOKi.co flavor lineup post' })} aria-label="View the kOKi.co flavor lineup post full size">
-              <img src={lineup.src} alt={lineup.alt} width={lineup.width} height={lineup.height} loading="lazy" decoding="async" />
-              <ExpandHint />
-            </button>
-          </RevealMedia>
-        </Tile>
-      </div>
-
-      {/* ---------- Services ---------- */}
-      <div id="services" className="services-wrap">
-        <h3 className="row-head row-head__title">Services</h3>
-        <ul className="services">
-          {services.map((s, i) => (
-            <Tile key={s.title} as="li" tone={serviceTones[i]} className="service" delay={i * 0.06}>
-              <RevealMedia className="service__media" delay={0.1 + i * 0.06}>
-                <ParallaxImg src={s.image} alt={s.alt} width={400} height={360} strength={6} />
-              </RevealMedia>
-              <h4 className="service__title">{s.title}</h4>
-              <p className="service__text">{s.text}</p>
-            </Tile>
-          ))}
-        </ul>
-      </div>
-
-      {/* ---------- Owners ---------- */}
-      <div id="owners" className="owners-wrap">
-        <h3 className="row-head row-head__title">Owners</h3>
-        <ul className="owners">
-          {owners.map((o, i) => (
-            <Tile key={o.name} as="li" tone={i % 2 ? 'peach' : 'paper'} className="owner" delay={i * 0.07}>
-              <div className="owner__photo">
-                {o.photo ? (
-                  <img src={o.photo} alt={`Portrait of ${o.name}`} loading="lazy" decoding="async" />
-                ) : (
-                  <div className="owner__ph" role="img" aria-label={`Photo placeholder for ${o.name}`}>
-                    <span aria-hidden="true">{o.initials}</span>
-                  </div>
-                )}
-              </div>
-              <h4 className="owner__name">{o.name}</h4>
-            </Tile>
-          ))}
-        </ul>
+        {/* Founders */}
+        <FoundersSection />
       </div>
     </section>
   );

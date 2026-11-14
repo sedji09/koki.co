@@ -1,6 +1,8 @@
 import { motion, useScroll, useTransform } from 'motion/react';
 import { useRef, type CSSProperties, type ReactNode } from 'react';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import { ElasticLettering } from './ElasticLettering';
+import '../styles/chapter-head.css';
 
 export type Tone = 'cream' | 'paper' | 'orange' | 'peach' | 'caramel' | 'choc' | 'white';
 
@@ -47,47 +49,87 @@ export function Eyebrow({ children, className = '' }: { children: ReactNode; cla
 
 interface ChapterProps {
   id: string;
-  n: string;
+  n?: string;
   code: string;
-  title: ReactNode;
+  title: string | ReactNode;
+  theme?: 'dark' | 'light';
+  tensionColor?: string;
 }
 
-/** One-line chapter opener: number · rubric code · title — animates in on scroll. */
-export function ChapterHead({ id, n, code, title }: ChapterProps) {
+/** Unified Chapter Header matching PT #1 Business Concept Development */
+export function ChapterHead({
+  id,
+  code,
+  title,
+  theme = 'dark',
+  tensionColor = '#F48A17',
+}: ChapterProps) {
+  // Format code to guarantee standard pill format (e.g. "CT#1" -> "CT #1")
+  const formattedCode = code.includes(' ') ? code : code.replace(/([A-Za-z]+)(#?\d+)/, '$1 $2');
+  const titleText = typeof title === 'string' ? title : '';
+  const reduced = useReducedMotion();
+
   return (
-    <motion.header
-      className="chapter-head"
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.6 }}
-      transition={{ staggerChildren: 0.12 }}
-    >
-      <motion.span
-        className="chapter-head__n"
-        aria-hidden="true"
-        variants={{ hidden: { opacity: 0, x: -60 }, show: { opacity: 1, x: 0 } }}
-        transition={{ duration: 0.9, ease: EASE }}
-      >
-        {n}
-      </motion.span>
-      <span className="chapter-head__mask">
-        <motion.h2
-          id={`${id}-title`}
-          className="chapter-head__title"
-          variants={{ hidden: { y: '110%' }, show: { y: '0%' } }}
-          transition={{ duration: 1, ease: EASE }}
+    <header className={`chapter-head-unified chapter-head-unified--${theme}`}>
+      <div className="chapter-head-unified__inner">
+        <motion.div
+          className="chapter-head-unified__badge-wrap"
+          initial={reduced ? false : { opacity: 0, x: -32, scale: 0.8 }}
+          whileInView={{ opacity: 1, x: 0, scale: 1 }}
+          viewport={{ once: false, amount: 0.25 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
         >
-          {title}
-        </motion.h2>
-      </span>
-      <motion.span
-        className="chapter-head__code"
-        variants={{ hidden: { opacity: 0, scale: 0.4 }, show: { opacity: 1, scale: 1 } }}
-        transition={{ type: 'spring', stiffness: 380, damping: 18 }}
-      >
-        {code}
-      </motion.span>
-    </motion.header>
+          <span className="chapter-head-unified__badge">{formattedCode}</span>
+        </motion.div>
+
+        <motion.div
+          initial={reduced ? false : { opacity: 0, x: -56, y: 12 }}
+          whileInView={{ opacity: 1, x: 0, y: 0 }}
+          viewport={{ once: false, amount: 0.25 }}
+          transition={{ type: 'spring', stiffness: 240, damping: 22, delay: 0.08 }}
+        >
+          {titleText ? (
+            <ElasticLettering
+              text={titleText}
+              as="h2"
+              id={`${id}-title`}
+              className={`chapter-head-unified__title ${theme === 'light' ? 'chapter-head-unified__title--light' : ''}`}
+              tensionColor={tensionColor}
+              stiffness={280}
+              damping={14}
+              maxStretch={180}
+            />
+          ) : (
+            <h2 id={`${id}-title`} className="chapter-head-unified__title">
+              {title}
+            </h2>
+          )}
+        </motion.div>
+
+        {/* Animated Baseline Accent Bar */}
+        <motion.div
+          className="chapter-head-unified__baseline-wrap"
+          aria-hidden="true"
+          initial={reduced ? false : { scaleX: 0, opacity: 0 }}
+          whileInView={{ scaleX: 1, opacity: 1 }}
+          viewport={{ once: false, amount: 0.25 }}
+          transition={{ duration: 0.75, ease: EASE, delay: 0.2 }}
+        >
+          <span
+            className="chapter-head-unified__baseline"
+            style={{
+              backgroundColor: theme === 'light' ? '#FFFDF9' : tensionColor,
+            }}
+          />
+          <span
+            className="chapter-head-unified__baseline-dot"
+            style={{
+              backgroundColor: theme === 'light' ? '#FFFDF9' : '#0B1C7D',
+            }}
+          />
+        </motion.div>
+      </div>
+    </header>
   );
 }
 
