@@ -262,14 +262,7 @@ export function FoundersSection() {
                     <div className="founder-modal__row">
                       <span className="founder-modal__label">Program & Year</span>
                       <span className="founder-modal__val">
-                        ✏️ {selectedFounder.course || 'BSIT 4C'}
-                      </span>
-                    </div>
-
-                    <div className="founder-modal__row">
-                      <span className="founder-modal__label">Role</span>
-                      <span className="founder-modal__val">
-                        🍪 {selectedFounder.role || 'Co-Founder'}
+                        ✏️ {selectedFounder.course || 'BSIT 4G'}
                       </span>
                     </div>
 
